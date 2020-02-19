@@ -647,8 +647,7 @@ class Entrypoint {
       badPackageConfig();
     }
     if (cfg.configVersion != 2 ||
-        cfg.generator != 'pub' ||
-        cfg.generatorVersion != sdk.version) {
+        cfg.generator != 'pub') {
       badPackageConfig();
     }
 
