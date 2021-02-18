@@ -5,124 +5,77 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'log.dart' as log;
 import 'utils.dart';
 
 /// A live-updating progress indicator for long-running log entries.
 class Progress {
-  /// The timer used to write "..." during a progress log.
+  /// The timer used to update the animation during a progress log.
   Timer _timer;
+  final String message;
+  static const int _padding = 59;
 
   /// The [Stopwatch] used to track how long a progress log has been running.
   final _stopwatch = Stopwatch();
 
-  /// The progress message as it's being incrementally appended.
-  ///
-  /// When the progress is done, a single entry will be added to the log for it.
-  final String _message;
+  /// Number of frames the animation has run.
+  int ticks = 0;
 
-  /// Gets the current progress time as a parenthesized, formatted string.
-  String get _time => '(${niceDuration(_stopwatch.elapsed)})';
+  Progress(this.message);
 
-  /// The length of the most recently-printed [_time] string.
-  var _timeLength = 0;
+  // Windows console font has a limited set of Unicode characters.
+  List<String> get _animation => canUseUnicode
+      ? const <String>['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷']
+      : const <String>[r'-', r'\', r'|', r'/'];
 
-  /// Creates a new progress indicator.
-  ///
-  /// If [fine] is passed, this will log progress messages on [log.Level.FINE]
-  /// as opposed to [log.Level.MESSAGE].
-  Progress(this._message, {bool fine = false}) {
+  String get _currentAnimationFrame => _animation[ticks % _animation.length];
+  String get _backspace => '\b' * (spinnerIndent + 1);
+  String get _clear => ' ' * (spinnerIndent + 1);
+  static const String _margin = '     ';
+
+  void start() {
     _stopwatch.start();
+    final line = '${message.padRight(_padding)}$_margin';
+    _totalMessageLength = line.length;
+    _write('$line'
+        '$_clear' // for _callback to backspace over
+        );
+    _update(_timer);
 
-    var level = fine ? log.Level.FINE : log.Level.MESSAGE;
-
-    // The animation is only shown when it would be meaningful to a human.
-    // That means we're writing a visible message to a TTY at normal log levels
-    // with non-JSON output.
-    if (stdioType(stdout) != StdioType.terminal ||
-        !log.verbosity.isLevelVisible(level) ||
-        log.json.enabled ||
-        fine ||
-        log.verbosity.isLevelVisible(log.Level.FINE)) {
-      // Not animating, so just log the start and wait until the task is
-      // completed.
-      log.write(level, '$_message...');
-      return;
-    }
-
-    _timer = Timer.periodic(Duration(milliseconds: 100), (_) {
-      _update();
-    });
-
-    stdout.write('$_message... ');
+    _timer = Timer.periodic(const Duration(milliseconds: 100), _update);
   }
 
-  /// Stops the progress indicator.
+  void _write(String message) => stdout.write(message);
+
+  void _update(Timer timer) {
+    _write(_backspace);
+    ticks += 1;
+    _write('${' ' * spinnerIndent}$_currentAnimationFrame');
+  }
+
   void stop() {
     _stopwatch.stop();
-
-    // Always log the final time as [log.fine] because for the most part normal
-    // users don't care about the precise time information beyond what's shown
-    // in the animation.
-    log.fine('$_message finished $_time.');
-
-    // If we were animating, print one final update to show the user the final
-    // time.
-    if (_timer == null) return;
     _timer.cancel();
     _timer = null;
-    _update();
-    stdout.writeln();
+    _clearSpinner();
+    _write(niceDuration(_stopwatch.elapsed).padLeft(_timePadding));
+    _write('\n');
+    _clearStatus();
   }
 
-  /// Erases the progress message and stops the progress indicator.
-  Future<void> stopAndClear() async {
-    _stopwatch.stop();
-
-    if (_timer != null) {
-      stdout.write('\b' * (_message.length + '... '.length + _timeLength));
-    }
-
-    // Always log the final time as [log.fine] because for the most part normal
-    // users don't care about the precise time information beyond what's shown
-    // in the animation.
-    log.fine('$_message finished $_time.');
-
-    // If we were animating, print one final update to show the user the final
-    // time.
-    if (_timer == null) return;
-    _timer.cancel();
-    _timer = null;
+  void _clearSpinner() {
+    _write('$_backspace$_clear$_backspace');
   }
 
-  /// Stop animating the progress indicator.
-  ///
-  /// This will continue running the stopwatch so that the full time can be
-  /// logged in [stop].
-  void stopAnimating() {
-    if (_timer == null) return;
+  int get spinnerIndent => _timePadding - 1;
+  static const int _timePadding = 8; // should fit "99,999ms"
 
-    // Erase the time indicator so that we don't leave a misleading
-    // half-complete time indicator on the console.
-    stdout.writeln('\b' * _timeLength);
-    _timeLength = 0;
-    _timer.cancel();
-    _timer = null;
-  }
+  int _totalMessageLength;
 
-  /// Refreshes the progress line.
-  void _update() {
-    if (log.isMuted) return;
-
-    // Show the time only once it gets noticeably long.
-    if (_stopwatch.elapsed.inSeconds == 0) return;
-
-    // Erase the last time that was printed. Erasing just the time using `\b`
-    // rather than using `\r` to erase the entire line ensures that we don't
-    // spam progress lines if they're wider than the terminal width.
-    stdout.write('\b' * _timeLength);
-    var time = _time;
-    _timeLength = time.length;
-    stdout.write(log.gray(time));
+  void _clearStatus() {
+    _write(
+      '${'\b' * _totalMessageLength}'
+      '${' ' * _totalMessageLength}'
+      '${'\b' * _totalMessageLength}',
+    );
   }
 }

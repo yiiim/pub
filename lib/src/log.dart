@@ -14,7 +14,9 @@ import 'package:stack_trace/stack_trace.dart';
 
 import 'exceptions.dart';
 import 'io.dart';
+
 import 'progress.dart';
+
 import 'transcript.dart';
 import 'utils.dart';
 
@@ -357,9 +359,8 @@ Future<T> warningsOnlyUnlessTerminal<T>(FutureOr<T> Function() callback) async {
 Future<T> progress<T>(String message, Future<T> Function() callback) {
   _stopProgress();
 
-  var progress = Progress(message);
-  _animatedProgress = progress;
-  return callback().whenComplete(progress.stop);
+  _animatedProgress = Progress(message)..start();
+  return callback().whenComplete(_stopProgress);
 }
 
 /// Like [progress] but erases the message once done.
@@ -368,18 +369,16 @@ Future<T> spinner<T>(String message, Future<T> Function() callback,
   if (condition) {
     _stopProgress();
 
-    var progress = Progress(message);
+    var progress = Progress(message)..start();
     _animatedProgress = progress;
-    return callback().whenComplete(() {
-      progress.stopAndClear();
-    });
+    return callback().whenComplete(_stopProgress);
   }
   return callback();
 }
 
 /// Stops animating the running progress indicator, if currently running.
 void _stopProgress() {
-  if (_animatedProgress != null) _animatedProgress.stopAnimating();
+  if (_animatedProgress != null) _animatedProgress.stop();
   _animatedProgress = null;
 }
 
