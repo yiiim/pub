@@ -13,6 +13,7 @@ class Progress {
   Timer _timer;
   final String message;
   static const int _padding = 59;
+  static const int _statusWidth = 8;
 
   /// The [Stopwatch] used to track how long a progress log has been running.
   final _stopwatch = Stopwatch();
@@ -27,17 +28,10 @@ class Progress {
       ? const <String>['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷']
       : const <String>[r'-', r'\', r'|', r'/'];
 
-  String get _currentAnimationFrame => _animation[ticks % _animation.length];
-  String get _backspace => '\b' * (spinnerIndent + 1);
-  String get _clear => ' ' * (spinnerIndent + 1);
-  static const String _margin = '     ';
-
   void start() {
     _stopwatch.start();
-    final line = '${message.padRight(_padding)}$_margin';
-    _totalMessageLength = line.length;
-    _write('$line'
-        '$_clear' // for _callback to backspace over
+    _write('${'$message...'.padRight(_padding)}'
+        '${' ' * _statusWidth}' // for _callback to backspace over
         );
     _update(_timer);
 
@@ -47,35 +41,21 @@ class Progress {
   void _write(String message) => stdout.write(message);
 
   void _update(Timer timer) {
-    _write(_backspace);
     ticks += 1;
-    _write('${' ' * spinnerIndent}$_currentAnimationFrame');
+    _replaceWith(_animation[ticks % _animation.length]);
   }
 
-  void stop() {
+  void _replaceWith(String animationFrame) {
+    _write('${'\b' * _statusWidth}'
+        '$animationFrame'
+        '${niceDuration(_stopwatch.elapsed).padLeft(_statusWidth - 1)}');
+  }
+
+  void stop(bool success) {
     _stopwatch.stop();
     _timer.cancel();
     _timer = null;
-    _clearSpinner();
-    _write(niceDuration(_stopwatch.elapsed).padLeft(_timePadding));
+    _replaceWith(success ? '✓' : '✗');
     _write('\n');
-    _clearStatus();
-  }
-
-  void _clearSpinner() {
-    _write('$_backspace$_clear$_backspace');
-  }
-
-  int get spinnerIndent => _timePadding - 1;
-  static const int _timePadding = 8; // should fit "99,999ms"
-
-  int _totalMessageLength;
-
-  void _clearStatus() {
-    _write(
-      '${'\b' * _totalMessageLength}'
-      '${' ' * _totalMessageLength}'
-      '${'\b' * _totalMessageLength}',
-    );
   }
 }

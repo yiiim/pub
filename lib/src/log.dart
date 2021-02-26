@@ -378,7 +378,7 @@ Future<T> spinner<T>(String message, Future<T> Function() callback,
 
 /// Stops animating the running progress indicator, if currently running.
 void _stopProgress() {
-  if (_animatedProgress != null) _animatedProgress.stop();
+  if (_animatedProgress != null) _animatedProgress.stop(true);
   _animatedProgress = null;
 }
 
