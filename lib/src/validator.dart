@@ -13,7 +13,7 @@ import 'log.dart' as log;
 import 'sdk.dart';
 import 'validator/changelog.dart';
 import 'validator/compiled_dartdoc.dart';
-import 'validator/dependency.dart';
+// import 'validator/dependency.dart';
 import 'validator/dependency_override.dart';
 import 'validator/deprecated_fields.dart';
 import 'validator/directory.dart';
@@ -23,7 +23,7 @@ import 'validator/flutter_plugin_format.dart';
 import 'validator/gitignore.dart';
 import 'validator/language_version.dart';
 import 'validator/leak_detection.dart';
-import 'validator/license.dart';
+// import 'validator/license.dart';
 import 'validator/name.dart';
 import 'validator/null_safety_mixed_mode.dart';
 import 'validator/pubspec.dart';
@@ -33,7 +33,7 @@ import 'validator/readme.dart';
 import 'validator/relative_version_numbering.dart';
 import 'validator/sdk_constraint.dart';
 import 'validator/size.dart';
-import 'validator/strict_dependencies.dart';
+// import 'validator/strict_dependencies.dart';
 
 /// The base class for validators that check whether a package is fit for
 /// uploading.
@@ -132,10 +132,10 @@ abstract class Validator {
     var validators = [
       GitignoreValidator(),
       PubspecValidator(),
-      LicenseValidator(),
+      // LicenseValidator(),
       NameValidator(),
       PubspecFieldValidator(),
-      DependencyValidator(),
+      // DependencyValidator(),
       DependencyOverrideValidator(),
       DeprecatedFieldsValidator(),
       DirectoryValidator(),
@@ -144,7 +144,7 @@ abstract class Validator {
       ReadmeValidator(),
       ChangelogValidator(),
       SdkConstraintValidator(),
-      StrictDependenciesValidator(),
+      // StrictDependenciesValidator(),
       FlutterConstraintValidator(),
       FlutterPluginFormatValidator(),
       LanguageVersionValidator(),
