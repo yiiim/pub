@@ -55,7 +55,7 @@ class AnalysisContextManager {
     var contextCollection = AnalysisContextCollection(
       includedPaths: [path],
       resourceProvider: resourceProvider,
-      sdkPath: getSdkPath(),
+      sdkPath: Platform.environment['DART_SDK_PATH'] ?? getSdkPath(),
     );
 
     // Add new contexts for the given path.

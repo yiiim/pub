@@ -21,7 +21,7 @@ import 'validator/executable.dart';
 import 'validator/flutter_constraint.dart';
 import 'validator/flutter_plugin_format.dart';
 import 'validator/gitignore.dart';
-// import 'validator/language_version.dart';
+import 'validator/language_version.dart';
 import 'validator/leak_detection.dart';
 // import 'validator/license.dart';
 import 'validator/name.dart';
@@ -147,7 +147,7 @@ abstract class Validator {
       // StrictDependenciesValidator(),
       FlutterConstraintValidator(),
       FlutterPluginFormatValidator(),
-      // LanguageVersionValidator(),
+      LanguageVersionValidator(),
       RelativeVersionNumberingValidator(),
       NullSafetyMixedModeValidator(),
       PubspecTypoValidator(),

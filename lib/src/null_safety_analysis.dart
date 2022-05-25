@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
@@ -180,7 +181,7 @@ class NullSafetyAnalysis {
           var contextCollection = AnalysisContextCollection(
             includedPaths: [path.normalize(packageDir)],
             resourceProvider: PhysicalResourceProvider.INSTANCE,
-            sdkPath: getSdkPath(),
+            sdkPath: Platform.environment['DART_SDK_PATH'] ?? getSdkPath(),
           );
           var analysisContext = contextCollection.contexts.first;
           var analysisSession = analysisContext.currentSession;
