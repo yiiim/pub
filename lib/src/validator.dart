@@ -151,7 +151,7 @@ abstract class Validator {
       RelativeVersionNumberingValidator(),
       NullSafetyMixedModeValidator(),
       PubspecTypoValidator(),
-      LeakDetectionValidator(),
+      // LeakDetectionValidator(),
       SizeValidator(),
     ];
 
