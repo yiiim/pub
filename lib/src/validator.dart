@@ -14,7 +14,7 @@ import 'sdk.dart';
 import 'validator/changelog.dart';
 import 'validator/compiled_dartdoc.dart';
 // import 'validator/dependency.dart';
-import 'validator/dependency_override.dart';
+// import 'validator/dependency_override.dart';
 import 'validator/deprecated_fields.dart';
 import 'validator/directory.dart';
 import 'validator/executable.dart';
@@ -22,7 +22,7 @@ import 'validator/flutter_constraint.dart';
 import 'validator/flutter_plugin_format.dart';
 import 'validator/gitignore.dart';
 import 'validator/language_version.dart';
-import 'validator/leak_detection.dart';
+// import 'validator/leak_detection.dart';
 // import 'validator/license.dart';
 import 'validator/name.dart';
 import 'validator/null_safety_mixed_mode.dart';
@@ -136,7 +136,7 @@ abstract class Validator {
       NameValidator(),
       PubspecFieldValidator(),
       // DependencyValidator(),
-      DependencyOverrideValidator(),
+      // DependencyOverrideValidator(),
       DeprecatedFieldsValidator(),
       DirectoryValidator(),
       ExecutableValidator(),
